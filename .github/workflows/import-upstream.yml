@@ -19,6 +19,11 @@ jobs:
       - name: Clone upstream source
         run: git clone --depth 1 https://github.com/nawodyaishan/ar-fashion-tryon.git /tmp/ar-fashion-tryon
 
+      - name: Download upstream Git LFS assets
+        run: |
+          git -C /tmp/ar-fashion-tryon lfs install
+          git -C /tmp/ar-fashion-tryon lfs pull origin main
+
       - name: Copy complete source tree
         run: |
           rsync -a --delete             --exclude='.git'             --exclude='.github/workflows/import-upstream.yml'             /tmp/ar-fashion-tryon/ ./
