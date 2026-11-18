@@ -1,0 +1,70 @@
+name: Import AR Fashion Try-On foundation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FITORA
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Clone upstream source
+        run: git clone --depth 1 https://github.com/nawodyaishan/ar-fashion-tryon.git /tmp/ar-fashion-tryon
+
+      - name: Copy complete source tree
+        run: |
+          rsync -a --delete             --exclude='.git'             --exclude='.github/workflows/import-upstream.yml'             /tmp/ar-fashion-tryon/ ./
+
+      - name: Restore FITORA project identity
+        run: |
+          cat > README.md <<'EOF'
+          # FITORA
+
+          **AI-powered virtual try-on platform.**
+
+          FITORA is built on the AR Fashion Try-On open-source foundation. It combines live camera-based AR garment previews with photo-based AI virtual try-on, garment processing, and a modular API.
+
+          ## Project identity
+          - Brand: FITORA
+          - Visual direction: blue neumorphism
+          - Frontend: Next.js, React, TypeScript, Three.js, MediaPipe
+          - Backend: FastAPI garment-processing services
+          - AI try-on: CatVTON inference integration
+
+          ## Upstream attribution
+          This repository incorporates code from [AR Fashion Try-On](https://github.com/nawodyaishan/ar-fashion-tryon), Copyright (c) 2025 Nawodya Ishan, under the MIT License. The original license notice is retained in [LICENSE](LICENSE).
+
+          Third-party models, model weights, datasets, hosted inference services, and dependencies may have separate terms. Review their licenses and usage restrictions before production or commercial deployment.
+
+          ## Repository structure
+          - `web-frontend/` — Next.js user interface and live AR/photo try-on flows
+          - `garment-processing-api/` — FastAPI garment processing and orchestration
+          - `catvton-gradio/` — CatVTON inference implementation and supporting code
+          - `docs/` — project specifications and technical documentation
+
+          ## Getting started
+          See the component READMEs and setup documentation in each project folder. Configure environment variables using the supplied `.env.example` files; never commit real credentials.
+
+          ## Upstream
+          https://github.com/nawodyaishan/ar-fashion-tryon
+          EOF
+
+      - name: Commit imported foundation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to import."
+            exit 0
+          fi
+          git commit -m "feat: import AR Fashion Try-On foundation into FITORA"
+          git push origin HEAD:main
